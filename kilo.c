@@ -805,6 +805,7 @@ void editorDrawRows(struct abuf *ab){
                 }
             }
             
+            abAppend(ab, "\x1b[49m", 5);
             abAppend(ab, "\x1b[39m", 5);
         }
 
@@ -960,8 +961,8 @@ void editorProcessKeypress(){
         break;
 
     case CTRL_KEY('q'):
-        if (E.dirty && quit_times > 0){
-            editorSetStatusMessage("WARNING!!! File has unsaved changes. Press Ctrl-q %d more times to quit.", quit_times);
+        if (E.dirty && quit_times - 1 > 0){
+            editorSetStatusMessage("WARNING!!! File has unsaved changes. Press Ctrl-q %d more times to quit.", quit_times - 1);
             quit_times--;
             return;
         }

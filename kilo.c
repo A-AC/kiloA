@@ -100,6 +100,11 @@ char *C_HL_keywords[] = {
   "void|", NULL
 };
 
+char *PY_HL_extensions[] = {".py", NULL};
+char *PY_HL_keywords[] = {
+  "if", "elif", "while", "for", "return", "else", "def", NULL
+};
+
 struct editorSyntax HLDB[] = {
     {
         "c",
@@ -108,6 +113,14 @@ struct editorSyntax HLDB[] = {
         "//", "/*", "*/",
         HL_HIGHLIGHT_NUMBERS | HL_HIGHLIGHT_STRINGS
     },
+    {
+        "py",
+        PY_HL_extensions,
+        PY_HL_keywords,
+        "#", "\"\"\"", "\"\"\"",
+        HL_HIGHLIGHT_NUMBERS | HL_HIGHLIGHT_STRINGS
+
+    }
 };
 
 #define HLDB_ENTRIES (sizeof(HLDB) / sizeof(HLDB[0]))
@@ -350,7 +363,7 @@ int editorSyntaxToColor(int hl){
     case HL_KEYWORD2: return 32;
     case HL_STRING: return 35;
     case HL_NUMBER: return 31;
-    case HL_MATCH: return 34;
+    case HL_MATCH: return 1;
     default: return 37;
     }
 }
@@ -766,8 +779,17 @@ void editorDrawRows(struct abuf *ab){
                     }
                 } else if (hl[j] == HL_NORMAL) {
                     if (current_color != -1){
+                        abAppend(ab, "\x1b[49m", 5);
                         abAppend(ab, "\x1b[39m", 5);
                         current_color = -1;
+                    }
+                    abAppend(ab, &c[j], 1);
+                } else if (hl[j] == HL_MATCH){
+                    int color = 1;
+                    if (color != current_color){
+                        current_color = color;
+                        abAppend(ab, "\x1b[30m", 5);
+                        abAppend(ab, "\x1b[43m", 5);
                     }
                     abAppend(ab, &c[j], 1);
                 } else {
@@ -779,8 +801,10 @@ void editorDrawRows(struct abuf *ab){
                         abAppend(ab, buf, clen);
                     }
                     abAppend(ab, &c[j], 1);
+                    
                 }
             }
+            
             abAppend(ab, "\x1b[39m", 5);
         }
 
